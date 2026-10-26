@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#1b2a28;--mute:#67766f;--line:#dbe3de;--bank:#1d4ed8;--petty:#b45309;--in:#157a3d;--out:#b42318;--r:10px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Figtree,system-ui,sans-serif;font-variant-numeric:tabular-nums;padding-bottom:40px}
+.wrap{max-width:640px;margin:0 auto;padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;padding:6px 2px 10px;gap:8px}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:0 0 4px}
+header span{text-align:right}header a{color:var(--bank);font-size:13px;text-decoration:none;margin-left:10px}
+.bal{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.b{background:var(--card);border:1px solid var(--line);border-left-width:5px;border-radius:var(--r);padding:10px 12px}
+.b small{color:var(--mute);display:block}.b strong{font-size:19px}
+.b.bank{border-left-color:var(--bank)}.b.petty{border-left-color:var(--petty)}
+.b.total{grid-column:1/3;border-left-color:var(--ink)}
+.tabs{display:flex;gap:6px;margin:14px 0 10px}
+.tabs button{flex:1;padding:10px 4px;border:1px solid var(--line);background:var(--card);border-radius:var(--r);font:600 13.5px Figtree,sans-serif;color:var(--mute)}
+.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:60px;resize:vertical}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;padding:11px;border:1px solid var(--line);background:#fff;border-radius:8px;font:600 14px Figtree,sans-serif}
+.seg .bank.on{background:var(--bank);color:#fff;border-color:var(--bank)}
+.seg .petty.on{background:var(--petty);color:#fff;border-color:var(--petty)}
+.seg .in.on{background:var(--in);color:#fff;border-color:var(--in)}
+.seg .out.on{background:var(--out);color:#fff;border-color:var(--out)}
+.seg .on:not(.bank):not(.petty):not(.in):not(.out){background:var(--ink);color:#fff;border-color:var(--ink)}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px;color:var(--ink)}
+.chk input{width:auto}
+.save{width:100%;margin-top:16px;padding:14px;background:var(--ink);color:#fff;border:0;border-radius:var(--r);font:700 16px Figtree,sans-serif}
+.save:disabled{opacity:.5}
+.ghost{width:100%;margin-top:10px;padding:11px;background:#fff;color:var(--ink);border:1px dashed var(--mute);border-radius:var(--r);font:600 14px Figtree,sans-serif}
+.vatnote,.hint{font-size:13px;color:var(--mute);margin-top:6px}
+.editbar{background:#fff7e0;border:1px solid #ecd28a;border-radius:8px;padding:8px 10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.editbar button{background:none;border:0;color:var(--bank);font:600 14px Figtree,sans-serif}
+.sum{font-size:13.5px;color:var(--mute);margin:0 2px 8px}.sum b{color:var(--ink)}
+.tx{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.tx .l{flex:1;min-width:0}.tx .d{font-weight:600;overflow-wrap:anywhere}
+.tx .m{font-size:12.5px;color:var(--mute)}
+.tx .a{text-align:right;font-weight:700;white-space:nowrap}.a.in{color:var(--in)}.a.out{color:var(--out)}
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:99px;color:#fff;margin-right:4px}
+.tag.bank{background:var(--bank)}.tag.petty{background:var(--petty)}.tag.cat{background:#e6efe9;color:var(--ink)}
+.acts{margin-top:4px}.acts a,.acts button{font-size:13px;margin-right:14px;color:var(--bank);text-decoration:none;background:none;border:0;padding:0;font-family:inherit;cursor:pointer}
+.acts .del,.rm{color:var(--out)!important}
+.empty{text-align:center;color:var(--mute);padding:30px 10px}
+.cat{border:1px solid var(--line);border-radius:8px;padding:10px;margin-top:10px}
+.rm{background:none;border:0;font:600 13px Figtree,sans-serif;padding:6px 0;cursor:pointer}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:99px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+.hide{display:none}
+/*PRO_CSS*/
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1 id="ttl">Cashbook</h1><span><a id="verLink" href="#">Pro version</a><a id="sheetLink" target="_blank">Sheet</a><a id="folderLink" target="_blank">Receipts</a></span></header>
+  <!--PRO_ALERT-->
+  <div class="bal">
+    <div class="b bank"><small>Bank</small><strong id="bBank">0.00</strong></div>
+    <div class="b petty"><small>Petty cash</small><strong id="bPetty">0.00</strong></div>
+    <div class="b total"><small>Total (bank + petty cash)</small><strong id="bTotal">0.00</strong></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="add" class="on">Add</button>
+    <button data-tab="list">History</button>
+    <!--PRO_TABS-->
+    <button data-tab="set">Settings</button>
+  </div>
+
+  <!-- ADD / EDIT -->
+  <div class="panel card" data-panel="add">
+    <div id="editBar" class="editbar hide"><span>Editing a transaction</span><button onclick="cancelEdit()">Cancel</button></div>
+    <div class="seg" id="segAcc"><button class="bank on" data-v="Bank">Bank</button><button class="petty" data-v="Petty Cash">Petty cash</button></div>
+    <div class="seg" id="segType" style="margin-top:8px"><button class="in on" data-v="In">Money in</button><button class="out" data-v="Out">Money out</button></div>
+    <div class="row">
+      <div><label>Date</label><input type="date" id="date"></div>
+      <div><label>Amount (total)</label><input type="number" id="amt" inputmode="decimal" step="0.01" min="0" placeholder="0.00" oninput="vatCalc()"></div>
+    </div>
+    <label>Category</label><select id="cat" onchange="catChange()"></select>
+    <label id="pLabel">Paid to</label>
+    <select id="pSel" onchange="pSelChange()"></select>
+    <input id="party" class="hide" style="margin-top:6px">
+    <label class="chk"><input type="checkbox" id="vatOn" onchange="vatCalc()"> This amount includes VAT</label>
+    <div id="vatBox" class="hide"><div class="row"><div><label>VAT %</label><input type="number" id="vatRate" step="0.01" min="0" oninput="vatCalc()"></div><div><label>VAT amount</label><input id="vatAmt" readonly></div></div><div class="vatnote" id="vatNote"></div></div>
+    <label>Description</label><input id="desc" placeholder="e.g. Diesel 40 L">
+    <label>Ref / cheque no.</label><input id="ref">
+    <label>Receipt or cheque copy</label>
+    <input type="file" id="file" accept="image/*,application/pdf">
+    <div class="hint" id="rcpHint"></div>
+    <button class="save" id="saveBtn" onclick="save()">Save transaction</button>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel hide" data-panel="list">
+    <div class="row" style="margin-bottom:8px">
+      <select id="fAcc" onchange="renderList()"><option value="">All accounts</option><option>Bank</option><option>Petty Cash</option></select>
+      <select id="fCat" onchange="renderList()"></select>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <input type="month" id="fMon" onchange="renderList()">
+      <input id="fQ" placeholder="Search" oninput="renderList()">
+    </div>
+    <!--PRO_FILTERS-->
+    <div class="sum" id="sum"></div>
+    <div id="list"></div>
+  </div>
+
+  <!--PRO_PANELS-->
+
+  <!-- SETTINGS -->
+  <div class="panel hide" data-panel="set">
+    <div class="card">
+      <h2>Opening balances and VAT</h2>
+      <label>Bank opening balance</label><input type="number" id="sBank" step="0.01">
+      <label>Petty cash opening balance</label><input type="number" id="sPetty" step="0.01">
+      <label>Default VAT %</label><input type="number" id="sVat" step="0.01">
+      <!--PRO_SETFIELDS-->
+      <button class="save" onclick="saveSet()">Save settings</button>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h2>Categories</h2>
+      <div class="hint">Each category has its own field, such as Vehicle number or Paid to. Add saved choices separated by commas to get a dropdown. Names you type while adding a transaction are saved here automatically.</div>
+      <div id="catEd"></div>
+      <button class="ghost" onclick="addCat()">+ Add category</button>
+      <button class="save" onclick="saveCats()">Save categories</button>
+      <button class="ghost" onclick="importLists()">Import lists from the "Import" tab in the Sheet</button>
+    </div>
+  </div>
+</div>
+<datalist id="labels"><option>Paid to</option><option>Received from</option><option>Vehicle number</option><option>Driver</option><option>Supplier</option><option>Employee</option><option>Customer</option></datalist>
+<div id="toast"></div>
+
+<script>
+const PRO=false;
+let D={rows:[],cats:[],bankOpen:0,pettyOpen:0,vat:5,low:0,appUrl:''}, acc='Bank', type='In', CE=[], editId=null, editUrl='', BAL={bank:0,petty:0};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>(+n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function tab(n){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hide',p.dataset.panel!==n));
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===n));
+  if(n==='set'){$('sBank').value=D.bankOpen;$('sPetty').value=D.pettyOpen;$('sVat').value=D.vat;CE=D.cats.map(c=>({name:c.name,label:c.label,options:c.options.join(', ')}));renderCE();}
+  if(window.onTab)onTab(n);
+}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)tab(b.dataset.tab);};
+function setSeg(id,v){[...$(id).children].forEach(b=>b.classList.toggle('on',b.dataset.v===v));}
+function seg(id,cb){$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;setSeg(id,b.dataset.v);cb(b.dataset.v);};}
+seg('segAcc',v=>acc=v);seg('segType',v=>type=v);
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function vatCalc(){
+  const on=$('vatOn').checked;$('vatBox').classList.toggle('hide',!on);
+  if(!on)return;
+  if(!$('vatRate').value)$('vatRate').value=D.vat||5;
+  const t=+$('amt').value||0,r=+$('vatRate').value||0,v=r?t*r/(100+r):0;
+  $('vatAmt').value=fmt(v);$('vatNote').textContent='Net '+fmt(t-v)+' + VAT '+fmt(v)+' = '+fmt(t);
+}
+/* Category and its dependent field */
+function curCat(){return D.cats.find(c=>c.name===$('cat').value)||{name:'',label:'Paid to',options:[]};}
+function catChange(){
+  const c=curCat(),s=$('pSel');$('pLabel').textContent=c.label;
+  if(c.options.length){
+    s.innerHTML='<option value="">Select '+esc(c.label.toLowerCase())+'</option>'+c.options.filter(o=>o.toLowerCase()!=='other').map(o=>`<option>${esc(o)}</option>`).join('')+'<option value="__m">Other</option>';
+    s.classList.remove('hide');$('party').classList.add('hide');
+  }else{s.innerHTML='';s.classList.add('hide');$('party').classList.remove('hide');}
+  $('party').value='';$('party').placeholder='Enter '+c.label.toLowerCase();
+}
+function pSelChange(){const m=$('pSel').value==='__m';$('party').classList.toggle('hide',!m);if(m)$('party').focus();}
+function partyVal(){return $('pSel').classList.contains('hide')||$('pSel').value==='__m'?$('party').value.trim():$('pSel').value;}
+function setParty(v){
+  const s=$('pSel');
+  if(s.classList.contains('hide')){$('party').value=v||'';return;}
+  if(!v){s.value='';return;}
+  if([...s.options].some(o=>o.value===v)){s.value=v;$('party').classList.add('hide');}
+  else{s.value='__m';$('party').classList.remove('hide');$('party').value=v;}
+}
+function fillCats(){
+  const keep=$('cat').value,keepF=$('fCat').value,list=D.cats.filter(c=>c.name!=='Transfer');
+  $('cat').innerHTML=list.map(c=>`<option>${esc(c.name)}</option>`).join('');
+  if(keep&&list.some(c=>c.name===keep))$('cat').value=keep;
+  $('fCat').innerHTML='<option value="">All categories</option>'+list.map(c=>`<option>${esc(c.name)}</option>`).join('')+(PRO?'<option>Transfer</option>':'');
+  $('fCat').value=keepF;
+  if(editId===null)catChange();
+}
+function load(d){
+  D=d;$('sheetLink').href=d.sheetUrl;$('folderLink').href=d.folderUrl;
+  $('verLink').href=PRO?d.appUrl:d.appUrl+'?v=pro';$('verLink').textContent=PRO?'Basic version':'Pro version';$('ttl').textContent=PRO?'Cashbook Pro':'Cashbook';
+  let b=d.bankOpen,p=d.pettyOpen;
+  d.rows.forEach(r=>{const s=r.type==='In'?r.total:-r.total;if(r.account==='Bank')b+=s;else p+=s;});
+  BAL={bank:b,petty:p};
+  $('bBank').textContent=fmt(b);$('bPetty').textContent=fmt(p);$('bTotal').textContent=fmt(b+p);
+  if(!$('vatRate').value)$('vatRate').value=d.vat||5;
+  fillCats();renderList();
+  if(window.afterLoad)afterLoad(d);
+}
+function renderList(){
+  const a=$('fAcc').value,c=$('fCat').value,m=$('fMon').value,q=$('fQ').value.toLowerCase();
+  const rows=D.rows.filter(r=>(!a||r.account===a)&&(!c||r.category===c)&&(!m||r.date.slice(0,7)===m)
+    &&(!q||(r.desc+' '+r.party+' '+r.ref+' '+r.category).toLowerCase().includes(q))&&(!window.extraFilter||extraFilter(r)))
+    .sort((x,y)=>y.date.localeCompare(x.date)||(y.id>x.id?1:-1));
+  let i=0,o=0;rows.forEach(r=>{if(r.category==='Transfer')return;if(r.type==='In')i+=r.total;else o+=r.total;});
+  $('sum').innerHTML=`${rows.length} entries · In <b>${fmt(i)}</b> · Out <b>${fmt(o)}</b> · Net <b>${fmt(i-o)}</b>`;
+  $('list').innerHTML=rows.length?rows.map(r=>`<div class="tx"><div class="l"><div class="d">${esc(r.desc)||esc(r.category)||'(no description)'}</div>
+  <div class="m"><span class="tag ${r.account==='Bank'?'bank':'petty'}">${esc(r.account)}</span>${r.category?`<span class="tag cat">${esc(r.category)}</span>`:''}${esc(r.date)}</div>
+  ${r.party?`<div class="m">${esc(r.field||'Name')}: <b>${esc(r.party)}</b>${r.ref?' · Ref '+esc(r.ref):''}</div>`:(r.ref?`<div class="m">Ref ${esc(r.ref)}</div>`:'')}
+  ${r.vat?`<div class="m">VAT ${fmt(r.vat)} (${r.vatRate}%) · Net ${fmt(r.net)}</div>`:''}
+  <div class="acts">${r.url?`<a href="${esc(r.url)}" target="_blank">View receipt</a>`:''}${r.category!=='Transfer'?`<button onclick="editTx('${esc(r.id)}')">Edit</button>`:''}<button class="del" onclick="del('${esc(r.id)}')">Delete</button></div></div>
+  <div class="a ${r.type==='In'?'in':'out'}">${r.type==='In'?'+':'−'}${fmt(r.total)}</div></div>`).join(''):'<div class="empty">No transactions found.</div>';
+}
+function prep(f){return new Promise(res=>{
+  if(!f)return res(null);
+  const rd=new FileReader();
+  rd.onload=()=>{
+    if(!f.type.startsWith('image/'))return res({name:f.name,mime:f.type,data:rd.result.split(',')[1]});
+    const im=new Image();
+    im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      res({name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:c.toDataURL('image/jpeg',.8).split(',')[1]});};
+    im.src=rd.result;};
+  rd.readAsDataURL(f);});}
+async function save(){
+  const amt=+$('amt').value;
+  if(!amt||amt<=0)return toast('Enter an amount');
+  if(!$('date').value)return toast('Pick a date');
+  const c=curCat();
+  const o={date:$('date').value,account:acc,type:type,total:amt,vatRate:$('vatOn').checked?+$('vatRate').value||0:0,desc:$('desc').value,
+    party:partyVal(),ref:$('ref').value,category:c.name,field:c.label,id:editId,keepUrl:editUrl};
+  if(window.preSave&&!preSave(o))return;
+  const btn=$('saveBtn'),was=editId;btn.disabled=true;btn.textContent='Saving...';
+  o.file=await prep($('file').files[0]);
+  const done=()=>{btn.disabled=false;btn.textContent=editId?'Update transaction':'Save transaction';};
+  google.script.run.withSuccessHandler(d=>{cancelEdit();load(d);done();toast(was?'Updated':'Saved');if(was)tab('list');})
+    .withFailureHandler(e=>{done();toast('Error: '+e.message);}).saveTx(o);
+}
+function editTx(id){
+  const r=D.rows.find(x=>x.id===id);if(!r)return;
+  editId=id;editUrl=r.url||'';acc=r.account;type=r.type;setSeg('segAcc',acc);setSeg('segType',type);
+  $('date').value=r.date;$('amt').value=r.total;$('desc').value=r.desc;$('ref').value=r.ref;
+  $('vatOn').checked=r.vat>0;if(r.vat>0)$('vatRate').value=r.vatRate;
+  if(D.cats.some(c=>c.name===r.category))$('cat').value=r.category;
+  catChange();setParty(r.party);vatCalc();
+  $('file').value='';$('editBar').classList.remove('hide');$('saveBtn').textContent='Update transaction';
+  $('rcpHint').textContent=editUrl?'A receipt is attached. Choose a file only to replace it.':'';
+  tab('add');window.scrollTo(0,0);
+}
+function cancelEdit(){
+  editId=null;editUrl='';['amt','desc','ref','file'].forEach(i=>$(i).value='');
+  $('editBar').classList.add('hide');$('saveBtn').textContent='Save transaction';$('rcpHint').textContent='';
+  catChange();vatCalc();
+}
+function del(id){if(!confirm('Delete this entry? Receipt files stay in Drive.'))return;google.script.run.withSuccessHandler(d=>{load(d);toast('Deleted');}).deleteTx(id);}
+function saveSet(){google.script.run.withSuccessHandler(d=>{load(d);toast('Settings saved');}).saveSettings($('sBank').value,$('sPetty').value,$('sVat').value,$('sLow')?$('sLow').value:D.low);}
+function renderCE(){
+  $('catEd').innerHTML=CE.map((c,i)=>`<div class="cat">
+    <div class="row"><div><label>Category name</label><input value="${esc(c.name)}" oninput="CE[${i}].name=this.value"></div>
+    <div><label>Field label</label><input list="labels" value="${esc(c.label)}" oninput="CE[${i}].label=this.value"></div></div>
+    <label>Saved choices (comma separated; empty = type manually)</label>
+    <textarea oninput="CE[${i}].options=this.value">${esc(c.options)}</textarea>
+    <button class="rm" onclick="CE.splice(${i},1);renderCE()">Remove category</button></div>`).join('');
+}
+function addCat(){CE.push({name:'',label:'Paid to',options:''});renderCE();}
+function saveCats(){google.script.run.withSuccessHandler(d=>{load(d);tab('set');toast('Categories saved');}).saveCategories(CE);}
+function importLists(){if(!confirm('Replace categories with the lists in the Import tab?'))return;
+  google.script.run.withSuccessHandler(d=>{load(d);tab('set');toast('Lists imported');}).withFailureHandler(e=>toast(e.message)).importLists();}
+//PRO_JS
+$('date').value=today();
+google.script.run.withSuccessHandler(load).withFailureHandler(e=>toast('Error: '+e.message)).getData();
+</script>
+</body>
+</html>

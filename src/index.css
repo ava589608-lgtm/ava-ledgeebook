@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: 'Figtree', system-ui, -apple-system, sans-serif;
+  --bg-main: #f2f5f3;
+  --card-bg: #ffffff;
+  --ink: #1b2a28;
+  --mute: #67766f;
+  --line: #dbe3de;
+  --bank: #1d4ed8;
+  --petty: #b45309;
+  --in: #157a3d;
+  --out: #b42318;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Official Google Sign-in button styling */
+.gsi-material-button {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background-color: WHITE;
+  background-image: none;
+  border: 1px solid #747775;
+  border-radius: 20px;
+  box-sizing: border-box;
+  color: #1f1f1f;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  letter-spacing: 0.25px;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px;
+  position: relative;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: auto;
+  align-items: center;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.gsi-material-button:hover {
+  background-color: #f8fafd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.gsi-material-button-icon {
+  height: 20px;
+  min-width: 20px;
+  width: 20px;
+  margin-right: 10px;
+}
+
+.gsi-material-button-contents {
+  font-weight: 500;
+}
+

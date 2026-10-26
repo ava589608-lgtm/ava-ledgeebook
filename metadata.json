@@ -1,0 +1,6 @@
+{
+  "name": "Cashbook",
+  "description": "Smart Cashbook application to track bank and petty cash transactions, manage categories, calculate VAT, and seamlessly sync with Google Sheets and Google Drive.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
